@@ -107,7 +107,7 @@ public class DataInitializer implements CommandLineRunner {
                    4, 4, "bug", jennifer.getId(), david.getId(), "BACKEND", "2024-09-30");
         
         createTask("Migrate from Log4j 1.x to Logback", "Log4j 1.x is EOL and has known vulnerabilities",
-                   0, 3, "task", null, null, "BACKEND", "2022-06-30"); // very overdue
+                   2, 3, "task", null, null, "BACKEND", "2022-06-30"); // very overdue
         
         createTask("Add unit tests for TaskService", "TaskService has 0% test coverage",
                    0, 2, "task", intern.getId(), kevin.getId(), "BACKEND", null); // assigned to inactive user
