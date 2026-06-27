@@ -478,9 +478,9 @@ public class TaskService {
         }
         
         // BUG: division by zero when no tasks are completed
-        stats.put("avgEstimated", totalEstimated / completedCount);
-        stats.put("avgActual", totalActual / completedCount);
-        stats.put("estimateAccuracy", (double) totalActual / totalEstimated * 100);
+        stats.put("avgEstimated", completedCount == 0 ? 0 : totalEstimated / completedCount);
+        stats.put("avgActual", completedCount == 0 ? 0 : totalActual / completedCount);
+        stats.put("estimateAccuracy", totalEstimated == 0 ? 0.0 : (double) totalActual / totalEstimated * 100);
         
         return stats;
     }
