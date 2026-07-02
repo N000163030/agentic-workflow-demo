@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
+import javax.validation.constraints.*;
 
 /**
  * Task entity
@@ -19,21 +20,41 @@ public class Task {
     public Long id;
 
     // no validation at all
+    @NotBlank(message="Title cannot be blank")
+    @Size(min=5,max=100)
     public String title;
+
+    @NotBlank
+    @Size(min=10,max=300)
     public String description;
     
     // Magic numbers: 0=todo, 1=in-progress, 2=done, 3=cancelled, 4=blocked, 5=review
+    @Min(0)
+    @Max(5)
     public int status;
     
     // Magic numbers: 1=low, 2=medium, 3=high, 4=critical, 5=blocker
+    @Min(1)
+    @Max(5)
     public int priority;
     
     // FIXME: should be enum, using string for "flexibility"
+    @NotBlank
+    @Pattern(
+    regexp = "bug|feature|task|story|epic|subtask",
+    message = "Invalid task type"
+    )
     public String type; // "bug", "feature", "task", "story", "epic", "subtask"
     
+    @NotNull
+    @Positive
     public Long assignee_id; // snake_case mixed with camelCase
+    @NotNull
+    @Positive
     public Long reporterId;
     
+    @NotBlank(message = "Project code is required")
+    @Size(max = 20)
     public String projectCode; // e.g. "PROJ-001"
     
     @Column(name = "created_at")
@@ -47,13 +68,17 @@ public class Task {
     // FIXME: due_date stored as string, parsing issues in production
     public String due_date; // format: "yyyy-MM-dd" or "MM/dd/yyyy" or "dd-MM-yyyy" depending on who created it
     
+    @PositiveOrZero
     public int estimated_hours; // sometimes negative values appear in DB
+    @PositiveOrZero
     public int actual_hours;
     
     @Column(length = 5000)
+    @Size(max=5000)
     public String notes; // raw HTML stored directly, XSS risk
 
     // TODO: implement tags properly
+
     public String tags; // comma-separated: "backend,urgent,Q3"
     
     // dead field - was used for old workflow engine

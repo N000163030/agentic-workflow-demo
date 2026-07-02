@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-
+import javax.validation.Valid;
 import java.util.*;
 
 /**
@@ -60,7 +60,7 @@ public class TaskController {
 
     @Operation(summary="Create Task")
     @PostMapping("/tasks")
-    public ResponseEntity<?> createTask(@RequestBody Task task) {
+    public ResponseEntity<?> createTask(@Valid @RequestBody Task task) {
         try {
             Task created = taskService.createTask(task);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -75,7 +75,7 @@ public class TaskController {
      */
     @Operation(summary="Update Task")
     @PutMapping("/tasks/{id}")
-    public ResponseEntity<?> updateTask(@PathVariable Long id, @RequestBody Task task) {
+    public ResponseEntity<?> updateTask(@PathVariable Long id, @Valid @RequestBody Task task) {
         try {
             Task updated = taskService.updateTask(id, task);
             return ResponseEntity.ok(updated);

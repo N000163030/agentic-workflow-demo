@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.validation.Valid;
+
 import java.util.*;
 
 /**
@@ -60,7 +62,7 @@ public class ProjectController {
     
     @Operation(summary="Create Project")
     @PostMapping
-    public ResponseEntity<?> createProject(@RequestBody Project project) {
+    public ResponseEntity<?> createProject(@Valid @RequestBody Project project) {
         // No validation at all
         project.setStatus(0);
         Project saved = projectRepository.save(project);
@@ -69,7 +71,7 @@ public class ProjectController {
     
     @Operation(summary="Update Project")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProject(@PathVariable Long id, @RequestBody Project project) {
+    public ResponseEntity<?> updateProject(@PathVariable Long id,@Valid @RequestBody Project project) {
         if (!projectRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }

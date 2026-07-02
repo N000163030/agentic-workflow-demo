@@ -3,7 +3,9 @@ package com.taskflow.model;
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
+import java.beans.ConstructorProperties;
 import java.util.ArrayList;
+import javax.validation.constraints.*;
 
 /**
  * Project entity
@@ -17,36 +19,58 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @NotBlank(message="Name is required")
+    @Size(min=3, max=100)
     private String name;
+
+    @NotBlank(message="Code is required")
+    @Size(min=2, max=20)
     private String code; // "PROJ", "BACKEND", etc.
+    
+    @Size(max=300)
     private String description;
     
     // Magic numbers again: 0=planning, 1=active, 2=on-hold, 3=completed, 4=archived
+    @Min(0)
+    @max(4)
     private int status;
     
+    @NotNull
+    @Positive
     private Long owner_id;
     
     @Temporal(TemporalType.TIMESTAMP)
     private Date created_at; // snake_case (copy-pasted from DB schema)
     
+    
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt; // camelCase (the dev who added this later)
     
+    @NotBlank
     private String startDate; // stored as string "2021-01-15"
+    
+    @NotBlank
     private String endDate;   // stored as string
     
     // budget in cents to avoid floating point... except some entries are in dollars
+    @PositiveOrZero
     private long budget;
     
     // FIXME: remove - was used for old dashboard
+
     private String color;
+
     private String icon;
     
+    @Size(max=2000)
     @Column(length = 2000)
     private String members; // comma-separated user IDs: "1,5,12,23" - terrible design
     
     // Denormalized counters - FIXME: always out of sync
+    @PositiveOrZero
     private int taskCount;
+
+    @PositiveOrZero
     private int completedTaskCount;
     private int bugCount;
     
