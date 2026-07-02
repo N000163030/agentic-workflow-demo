@@ -6,6 +6,8 @@ import com.taskflow.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 
 import java.util.*;
 
@@ -16,6 +18,10 @@ import java.util.*;
  * SECURITY: No authorization checks
  * SECURITY: Password exposed in responses
  */
+@Tag(
+    name="User",
+    description="Operations related to User Management"
+)
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -23,12 +29,14 @@ public class UserController {
     @Autowired
     private UserService userService;
     
+    @Operation(summary="Retrieve all Users")
     @GetMapping
     public List<User> getAllUsers() {
         // SECURITY: Returns password field in response!
         return userService.getAllUsers();
     }
     
+    @Operation(summary="Retrieve Users by id")
     @GetMapping("/{id}")
     public ResponseEntity<?> getUser(@PathVariable Long id) {
         User user = userService.getUser(id);
@@ -43,6 +51,7 @@ public class UserController {
      * Register new user
      * SECURITY: No CAPTCHA, no rate limiting
      */
+    @Operation(summary="Register user")
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody Map<String, String> body) {
         try {
@@ -64,6 +73,7 @@ public class UserController {
      * Login endpoint
      * SECURITY: Returns full user object including password
      */
+    @Operation(summary="Login users")
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body) {
         try {
@@ -83,6 +93,7 @@ public class UserController {
         }
     }
     
+    @Operation(summary="Update Users")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody User user) {
         try {
@@ -93,6 +104,7 @@ public class UserController {
         }
     }
     
+    @Operation(summary="Delete Users")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
@@ -107,6 +119,7 @@ public class UserController {
      * Password reset request
      * SECURITY: Returns the reset token in the response body
      */
+    @Operation(summary="Request Reset password")
     @PostMapping("/password-reset")
     public ResponseEntity<?> requestPasswordReset(@RequestBody Map<String, String> body) {
         try {
@@ -123,6 +136,7 @@ public class UserController {
     /**
      * Reset password
      */
+    @Operation(summary="Reset password")
     @PostMapping("/password-reset/confirm")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> body) {
         try {
@@ -136,6 +150,7 @@ public class UserController {
     /**
      * Search users
      */
+    @Operation(summary="Search Users")
     @GetMapping("/search")
     public List<User> searchUsers(@RequestParam String q) {
         return userService.searchUsers(q);
@@ -143,6 +158,7 @@ public class UserController {
     
     // FIXME: This endpoint was added for an integration that was cancelled
     // No one knows if it's still used
+    @Operation(summary="Retrieve all Users by role")
     @GetMapping("/by-role/{role}")
     public List<User> getUsersByRole(@PathVariable String role) {
         return userService.getActiveUsersByRole(role);
