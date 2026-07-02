@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.validation.Valid;
 import java.util.*;
 
 /**
@@ -19,6 +21,10 @@ import java.util.*;
  * FIXME: No pagination
  * FIXME: Mixing REST conventions (some return entity, some return Map)
  */
+@Tag(
+    name="Tasks",
+    description="Operations related to Task Management"
+)
 @RestController
 @RequestMapping("/api")  // FIXME: some endpoints use /api/tasks, some use /api/v1/tasks
 public class TaskController {
@@ -29,6 +35,8 @@ public class TaskController {
     /**
      * Get all tasks - no pagination, returns everything
      */
+
+    @Operation(summary="Retrieve all Tasks")
     @GetMapping("/tasks")
     public List<Task> getAllTasks() {
         return taskService.getAllTasks();
@@ -38,6 +46,8 @@ public class TaskController {
      * Get task by ID
      * BUG: Returns 200 with null body when task not found (should be 404)
      */
+
+    @Operation(summary="Retrieve Task with given id")
     @GetMapping("/tasks/{id}")
     public Task getTask(@PathVariable Long id) {
         return taskService.getTask(id); // Returns null if not found
@@ -47,8 +57,10 @@ public class TaskController {
      * Create task
      * No input validation, no proper error response
      */
+
+    @Operation(summary="Create Task")
     @PostMapping("/tasks")
-    public ResponseEntity<?> createTask(@RequestBody Task task) {
+    public ResponseEntity<?> createTask(@Valid @RequestBody Task task) {
         try {
             Task created = taskService.createTask(task);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
@@ -61,8 +73,9 @@ public class TaskController {
     /**
      * Update task
      */
+    @Operation(summary="Update Task")
     @PutMapping("/tasks/{id}")
-    public ResponseEntity<?> updateTask(@PathVariable Long id, @RequestBody Task task) {
+    public ResponseEntity<?> updateTask(@PathVariable Long id, @Valid @RequestBody Task task) {
         try {
             Task updated = taskService.updateTask(id, task);
             return ResponseEntity.ok(updated);
@@ -75,6 +88,7 @@ public class TaskController {
      * Delete task - no authorization check
      * Anyone can delete any task
      */
+    @Operation(summary="Delete task")
     @DeleteMapping("/tasks/{id}")
     public ResponseEntity<?> deleteTask(@PathVariable Long id) {
         try {
@@ -91,6 +105,8 @@ public class TaskController {
      * Search tasks
      * SECURITY: SQL injection via keyword parameter
      */
+
+    @Operation(summary="Search task")
     @GetMapping("/tasks/search")
     public List<Map<String, Object>> searchTasks(@RequestParam String keyword) {
         return taskService.searchTasks(keyword); // SQL injection
@@ -100,6 +116,7 @@ public class TaskController {
      * Get tasks by status
      * FIXME: Status is magic number, should accept string
      */
+    @Operation(summary="Retrieve Task by Status")
     @GetMapping("/tasks/status/{status}")
     public List<Task> getTasksByStatus(@PathVariable int status) {
         return taskService.getTasksByStatus(status);
@@ -108,6 +125,7 @@ public class TaskController {
     /**
      * Get tasks by assignee
      */
+    @Operation(summary="Retrieve task by Assignee")
     @GetMapping("/tasks/assignee/{userId}")
     public List<Task> getTasksByAssignee(@PathVariable Long userId) {
         return taskService.getTasksByAssignee(userId);
@@ -116,6 +134,7 @@ public class TaskController {
     /**
      * Get overdue tasks
      */
+    @Operation(summary="Retrieve Tasks which are Overdue")
     @GetMapping("/tasks/overdue")
     public List<Task> getOverdueTasks() {
         return taskService.getOverdueTasks();
@@ -125,6 +144,7 @@ public class TaskController {
      * Assign task to user
      * Inconsistent URL pattern - uses query param instead of path
      */
+    @Operation(summary="Assign Tasks")
     @PostMapping("/tasks/{taskId}/assign")
     public ResponseEntity<?> assignTask(@PathVariable Long taskId, @RequestParam Long userId) {
         try {
@@ -138,6 +158,7 @@ public class TaskController {
     /**
      * Transition task status
      */
+    @Operation(summary="Check transition Status of tasks")
     @PostMapping("/tasks/{taskId}/transition")
     public ResponseEntity<?> transitionStatus(@PathVariable Long taskId, @RequestParam int status) {
         try {
@@ -152,6 +173,7 @@ public class TaskController {
      * Get dashboard statistics
      * BUG: Division by zero when no completed tasks exist
      */
+    @Operation(summary="Retrieve task statistics")
     @GetMapping("/stats")
     public Map<String, Object> getStatistics() {
         return taskService.getTaskStatistics();
@@ -161,6 +183,7 @@ public class TaskController {
      * Get project statistics
      * Different URL pattern from above (inconsistent API design)
      */
+    @Operation(summary="Retrieve Project statistics")
     @GetMapping("/projects/{projectCode}/stats")
     public Map<String, Object> getProjectStats(@PathVariable String projectCode) {
         return taskService.getProjectStatistics(projectCode);
@@ -170,6 +193,7 @@ public class TaskController {
      * Import tasks from CSV
      * SECURITY: No file size limit, no content validation
      */
+    @Operation(summary="Import tasks")
     @PostMapping("/tasks/import")
     public ResponseEntity<?> importTasks(@RequestBody String csvData) {
         try {
@@ -186,6 +210,8 @@ public class TaskController {
     /**
      * Export tasks to CSV
      */
+
+    @Operation(summary="Export task")
     @GetMapping("/tasks/export")
     public ResponseEntity<String> exportTasks(@RequestParam(required = false) String projectCode) {
         String csv = taskService.exportTasks(projectCode);
@@ -198,6 +224,7 @@ public class TaskController {
     /**
      * Auto-assign task
      */
+    @Operation(summary="Auto Assign Tasks")
     @PostMapping("/tasks/{taskId}/auto-assign")
     public ResponseEntity<?> autoAssignTask(@PathVariable Long taskId) {
         try {
@@ -209,6 +236,7 @@ public class TaskController {
     }
     
     // Legacy endpoint - kept for backward compatibility with mobile app v1.x
+    @Operation(summary="Get tasks by legacy")
     @GetMapping("/v1/tasks")
     public Map<String, Object> getTasksLegacy() {
         Map<String, Object> response = new HashMap<>();
@@ -219,6 +247,7 @@ public class TaskController {
     }
     
     // Another legacy endpoint - different response format
+    @Operation(summary="Get tasks by legacy")
     @GetMapping("/v1/tasks/{id}")
     public Map<String, Object> getTaskLegacy(@PathVariable Long id) {
         Map<String, Object> response = new HashMap<>();

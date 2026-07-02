@@ -2,7 +2,7 @@ package com.taskflow.model;
 
 import javax.persistence.*;
 import java.util.Date;
-
+import javax.validation.constraints.*;
 /**
  * User entity - represents system users
  * @author kevin (2019)
@@ -17,23 +17,44 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
+    @NotBlank(message="Username should not be blank")
+    @Size(min=3, max=20, message="Username must be between 3 and 20 characters")
     private String username;
+
+    @Email(message="Please enter a valid email address")
+    @NotBlank(message="Email is required")
     private String email;
     
     // SECURITY ISSUE: storing plaintext password
+    @NotBlank(message="Password is required")
+    @Size(min=8, max=100, message="Password should be atleast 8 characters")   
     private String password;
     
     // FIXME: role should be an enum or separate table
+    @NotBlank
+    @Pattern(
+    regexp = "admin|user|manager|viewer|super_admin|guest",
+    message = "Invalid role"
+    )
     private String role; // "admin", "user", "manager", "viewer", "super_admin", "guest"
     
+    @NotBlank
+
     private String full_name; // snake_case
     private String firstName; // camelCase - added later by different dev
+    @NotBlank
     private String lastName;  // camelCase
     
     // Deprecated: use firstName + lastName instead
     // but some old code still reads from full_name
     
+    @Size(max = 100)
     private String department;
+    @NotBlank
+    @Pattern(
+    regexp = "^[0-9]{10}$",
+    message = "Phone number must contain exactly 10 digits"
+    )
     private String phone_number;
     private String avatar_url;
     
@@ -47,6 +68,7 @@ public class User {
     private Date lastLogin;
     
     // FIXME: this field is sometimes null, sometimes 0, sometimes -1
+    @PositiveOrZero
     private int failedLoginAttempts;
     
     // Token for password reset - SECURITY: never expires!
@@ -54,10 +76,14 @@ public class User {
     
     // Preferences stored as JSON string - FIXME: should be a separate table
     @Column(length = 10000)
+    @Size(max = 10000)
     private String preferences; // {"theme":"dark","notifications":true,"language":"zh-TW"}
     
     // Team info duplicated here AND in a teams table
+    @NotBlank
+    @Size(max=30)
     private String teamName;
+    @NotNull
     private Long teamId;
     
     public User() {}

@@ -7,6 +7,9 @@ import com.taskflow.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import javax.validation.Valid;
 
 import java.util.*;
 
@@ -18,6 +21,10 @@ import java.util.*;
  * 
  * FIXME: Inconsistent with TaskController and UserController patterns
  */
+@Tag(
+    name="Projects",
+    description="Operations related to Project Management"
+)
 @RestController
 @RequestMapping("/api/projects")
 public class ProjectController {
@@ -29,11 +36,13 @@ public class ProjectController {
     @Autowired
     private TaskService taskService;
     
+    @Operation(summary="Retrieve all projects")
     @GetMapping
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }
     
+    @Operation(summary="Retrieve project by id")
     @GetMapping("/{id}")
     public ResponseEntity<?> getProject(@PathVariable Long id) {
         return projectRepository.findById(id)
@@ -41,6 +50,7 @@ public class ProjectController {
                 .orElse(ResponseEntity.notFound().build());
     }
     
+    @Operation(summary="Retrieve project by code")
     @GetMapping("/code/{code}")
     public ResponseEntity<?> getProjectByCode(@PathVariable String code) {
         Project project = projectRepository.findByCode(code);
@@ -50,16 +60,18 @@ public class ProjectController {
         return ResponseEntity.ok(project);
     }
     
+    @Operation(summary="Create Project")
     @PostMapping
-    public ResponseEntity<?> createProject(@RequestBody Project project) {
+    public ResponseEntity<?> createProject(@Valid @RequestBody Project project) {
         // No validation at all
         project.setStatus(0);
         Project saved = projectRepository.save(project);
         return ResponseEntity.ok(saved); // Should be 201 Created
     }
     
+    @Operation(summary="Update Project")
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProject(@PathVariable Long id, @RequestBody Project project) {
+    public ResponseEntity<?> updateProject(@PathVariable Long id,@Valid @RequestBody Project project) {
         if (!projectRepository.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
@@ -67,7 +79,8 @@ public class ProjectController {
         // BUG: Overwrites all fields including counters, created_at, etc.
         return ResponseEntity.ok(projectRepository.save(project));
     }
-    
+
+    @Operation(summary="Delete Project")    
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProject(@PathVariable Long id) {
         // FIXME: Doesn't check if project has active tasks
@@ -79,6 +92,7 @@ public class ProjectController {
     /**
      * Get project dashboard - mixes data from different sources
      */
+    @Operation(summary="Retrieve Project Dashboard")
     @GetMapping("/{id}/dashboard")
     public ResponseEntity<?> getProjectDashboard(@PathVariable Long id) {
         Optional<Project> projectOpt = projectRepository.findById(id);
@@ -102,6 +116,8 @@ public class ProjectController {
      * Add member to project
      * FIXME: Uses comma-separated string instead of join table
      */
+
+    @Operation(summary="Add member")
     @PostMapping("/{id}/members")
     public ResponseEntity<?> addMember(@PathVariable Long id, @RequestBody Map<String, Long> body) {
         Optional<Project> projectOpt = projectRepository.findById(id);
